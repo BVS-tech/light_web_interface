@@ -13,14 +13,29 @@ html button to call php to execute command :
 Commande PHP exec :
 
     http://php.net/manual/en/function.exec.php
+  
+WiFi hotspot :
+
+    (old - don't work) http://www.daveconroy.com/using-your-raspberry-pi-as-a-wireless-router-and-web-server/
+    http://elinux.org/RPI-Wireless-Hotspot
+    
+CGI Python :
+
+    https://www.howtoforge.com/embedding-python-in-apache2-with-mod_python-debian-etch
+
+Infos utiles :
+http://www.ndpsoftware.com/git-cheatsheet.html#loc=workspace;
+http://www.cheat-sheets.org/saved-copy/git-cheat-sheet.pdf
+http://pythoughts.com/table-style-css/
+http://www.colorhexa.com/
 
 ###########
 ## Infos ##
 ###########
 
-Raspbeerypi :
+Raspberry pi :
 
-user_name : pi
+username : pi
 password : pi
 password root : piroot
 hostname : raspberrypi
@@ -28,7 +43,7 @@ hostname : raspberrypi
 BDD MySQL :
 
 server : localhost
-user_name : root
+username : root
 password : mysqlpi
 dbname : dblight
 
@@ -36,13 +51,27 @@ dbname : dblight
 ## Dossiers/Fichiers ##
 #######################
 
-    /var/www/
-    /etc/apache2/conf.d
     /etc/hostname
     /etc/hosts
-    /etc/apache/mods-enabled/php5.conf
-    /etc/php5/apache2/php.ini
     /etc/network/interfaces
+
+    /var/www/
+    
+Apache :
+    /etc/apache2/conf.d/servername.conf
+    /etc/apache2/apache2.conf
+    /etc/apache2/sites-available/default
+
+php :
+    /etc/php5/apache2/php.ini
+    
+hostpad :
+    /etc/hostapd/hostapd.conf
+    /etc/default/hostapd
+    
+udhcpd :
+    /etc/udhcpd.conf
+    /etc/default/udhcpd
 
 ###############
 ## Commandes ##
@@ -50,19 +79,20 @@ dbname : dblight
 
     Restart Apache : sudo service apache2 restart
     Lancer MySQL : mysql -u root -p
+    Version Apache : /usr/sbin/apache2 -v
+    
+hostapd -d /etc/hostapd/hostapd.conf
 
 ssh-keygen 
 ssh-copy-id pi@192.168.0.222  
 scp index.php pi@192.168.0.222:/var/www
 
-wpa_passphrase My_WiFi_SSID mypassword ->
+sudo nano ~/.bashrc
+PYTHONPATH="${PYTHONPATH}:/usr/bin/python"
+export PYTHONPATH
+source ~/.bashrc
 
-network={
-	ssid="My_WiFi_SSID"
-	#psk="mypassword"
-	psk=b2abb0fcd2f4527e11817de0823a57bb19ba4622f4595062c94ec4dd1370b5fe
-}
-
+pip install pyserial
 
 ###################
 ## Modifications ##
@@ -72,29 +102,3 @@ Fichier : /etc/php5/apache2/php.ini
 
     display_errors = Off -> display_errors = On;
     display_startup_errors = Off -> display_startup_errors = On;
-    
-Fichier : /etc/network/interfaces
-    
-    auto lo
-    
-    iface lo inet loopback
-    iface eth0 inet dhcp
-
-    allow-hotplug wlan0
-    iface wlan0 inet manual
-    wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
-    iface default inet dhcp
-    
-    --->>>>>
-    
-    auto lo
-    auto wlan0
-    
-    iface lo inet loopback
-    iface eth0 inet dhcp
-
-    allow-hotplug wlan0
-    iface wlan0 inet manual
-    wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
-    iface default inet dhcp
-    
