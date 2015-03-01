@@ -26,36 +26,7 @@ if (!mysql_select_db($dbname,$connection)) {
     exit;
 }
 
-/* Affiche tous les scenarios disponible dans la bdd */
-
-echo '<div><h3>Liste des sc&eacute;narios :</h3>';
-$sql = "SELECT * FROM scenario";
-$result = mysql_query($sql, $connection);
-
-if(!$result){
-    echo "DB Error, could not list tables\n";
-    echo 'MySQL Error: ' . mysql_error();
-    exit;
-}
-if(mysql_num_rows($result)){
-    echo '<table cellpadding="0" cellspacing="0" class="db-table">';
-    echo '<tr><th>Identifiant S&eacute;nario</th><th>Description</th><th>Activ&eacute;</th></tr>';
-    while($row = mysql_fetch_row($result)) {
-        echo '<tr>';    
-        foreach($row as $key=>$value) {
-            echo '<td>',$value,'</td>';
-            }
-        echo '<td><form action="" method="post"><button type="submit" name="buttonScenarioOn',$countScenario,'">ON</button></form></td>';
-        $buttonScenarioOn = "buttonScenarioOn".$countScenario;
-        /* Appel pour executer le code qui permet de changer de scenario*/
-        /*if (isset($_POST[$buttonScenarioOn]))
-            exec('code');*/
-        echo '</tr>';
-        $countScenario++;
-        }
-    echo '</table></div><br />';
-    }
-
+echo '<div><h3>Les sc&eacute;narios</h3>';
 /* Affiche le scenario en cours */
  
 $sql = "SELECT * FROM rasplight";
@@ -67,15 +38,15 @@ if(!$result){
     exit;
 }
 if(mysql_num_rows($result)){
-    echo '<div><table cellpadding="0" cellspacing="0" class="db-table">';
-    echo '<tr><th>S&eacute;nario en cours</th><th>PID</th></tr>';
+    echo '<div><table id="table-bvs">';
+    echo '<thead><th>S&eacute;nario en cours</th><th>PID</th></thead><tbody>';
     while($row = mysql_fetch_row($result)) {
         echo '<tr>';
         foreach($row as $key=>$value) {
             if($key == 0){
                 if($value == NULL)
-                    echo '<td>Aucun</td>';
-                else echo '<td>Sc&eacute;nario ',$value,'</td>';
+                    echo '<td class="off">Aucun</td>';
+                else echo '<td class="on">Sc&eacute;nario ',$value,'</td>';
             }
             else{
                 if($value == NULL)
@@ -85,13 +56,13 @@ if(mysql_num_rows($result)){
         }
         echo '</tr>';
         }
-    echo '</table></div>';
+    echo '</tbody></table></div><br />';
     }
 
-/* show table light */
 
-echo '<div><h3>Liste des lampes :</h3>';
-$sql = "SELECT * FROM light";
+/* Affiche tous les scenarios disponible dans la bdd */
+
+$sql = "SELECT * FROM scenario";
 $result = mysql_query($sql, $connection);
 
 if(!$result){
@@ -100,8 +71,38 @@ if(!$result){
     exit;
 }
 if(mysql_num_rows($result)){
-	echo '<table cellpadding="0" cellspacing="0" class="db-table">';
-	echo '<tr><th>Identifiant Lampe</th><th>&Eacute;tat</th><th>Appair&eacute;</th><th>Puissance</th><th>Xmin</th><th>Xmax</th><th>Ymin</th><th>Ymax</th></tr>';
+    echo '<table id="table-bvs">';
+    echo '<thead><th>Identifiant S&eacute;nario</th><th>Description</th><th>Activ&eacute;</th></thead><tbody>';
+    while($row = mysql_fetch_row($result)) {
+        echo '<tr>';    
+        foreach($row as $key=>$value) {
+            echo '<td>',$value,'</td>';
+            }
+        echo '<td><form action="" method="post"><button type="submit" name="buttonScenarioOn',$countScenario,'" class="on">ON</button></form></td>';
+        $buttonScenarioOn = "buttonScenarioOn".$countScenario;
+        /* Appel pour executer le code qui permet de changer de scenario*/
+        /*if (isset($_POST[$buttonScenarioOn]))
+            exec('code');*/
+        echo '</tr>';
+        $countScenario++;
+        }
+    echo '</tbody></table></div>';
+    }
+
+/* show table light */
+
+echo '<div><h3>Les lampes</h3>';
+$sql = "SELECT * FROM light ORDER BY light_pair DESC";
+$result = mysql_query($sql, $connection);
+
+if(!$result){
+    echo "DB Error, could not list tables\n";
+    echo 'MySQL Error: ' . mysql_error();
+    exit;
+}
+if(mysql_num_rows($result)){
+	echo '<table id="table-bvs">';
+	echo '<thead><th>Identifiant Lampe</th><th>&Eacute;tat</th><th>Appair&eacute;</th><th>Puissance</th><th>Xmin</th><th>Xmax</th><th>Ymin</th><th>Ymax</th></thead><tbody>';
 	while($row = mysql_fetch_row($result)) {
 		echo '<tr>';
 		foreach($row as $key=>$value) {
@@ -110,13 +111,12 @@ if(mysql_num_rows($result)){
 			    echo '<td>',$value,'</td>';
 			    }
 			else if($key == 1){
-				echo '<td>';
 				if($value == 0)
-				    echo 'OFF';
-				else echo 'ON';
+				    echo '<td class="off">OFF';
+				else echo '<td class="on">ON';
 				echo '<form action="" method="post">
-				<button type="submit" name="buttonLightOn',$countLight,'">ON</button>
-				<button type="submit" name="buttonLightOff',$countLight,'">OFF</button>
+				<button type="submit" name="buttonLightOn',$countLight,'" class="on">ON</button>
+				<button type="submit" name="buttonLightOff',$countLight,'" class="off">OFF</button>
 				</form></td>';
 				$buttonLightOn = "buttonLightOn".$countScenario;
 				$buttonLightOff = "buttonLightOff".$countScenario;
@@ -128,13 +128,12 @@ if(mysql_num_rows($result)){
                     exec('code');*/
             }
             else if($key == 2){
-                echo '<td>';
                 if($value == 0)
-				    echo 'OFF';
-				else echo 'ON';
+				    echo '<td class="off">OFF';
+				else echo '<td class="on">ON';
                 echo '<form action="" method="post">
-				<button type="submit" name="buttonPairOn',$countLight,'">ON</button>
-				<button type="submit" name="buttonPairOff',$countLight,'">OFF</button>
+				<button type="submit" name="buttonPairOn',$countLight,'" class="on">ON</button>
+				<button type="submit" name="buttonPairOff',$countLight,'" class="off">OFF</button>
 				</form></td>';
 				$buttonPairOn = "buttonPairOn".$countScenario;
 				$buttonPairOff = "buttonPairOff".$countScenario;
@@ -151,7 +150,7 @@ if(mysql_num_rows($result)){
 			}
 		echo '</tr>';
 		}
-	echo '</table></div><br />';
+	echo '</tbody></table></div><br />';
 	}
 	
 echo '</body></html>';
