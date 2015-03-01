@@ -1,0 +1,211 @@
+########################################
+##               Tutoriel             ##
+##    Installation du Raspberry Pi    ##
+########################################
+
+#############
+# Prérequis #
+#############
+
+Le système d'exploitation Raspian est installé et le Raspberry Pi connecté à Internet.
+
+################
+# Informations #
+################
+
+Site officiel : http://www.raspberrypi.org/
+Système d'exploitation : Raspbian
+Téléchargement : http://www.raspberrypi.org/downloads/
+Documentation : http://www.raspberrypi.org/documentation/
+
+Remarque : Un tutoriel d'installation de Raspbian est présent sur le site officiel.
+
+#############
+# Problèmes #
+#############
+
+Le CGI python ne fonctionne que pour Python 2.
+
+########################
+# Valeur par défaut du #
+#     Raspberry Pi     #
+########################
+
+Username : pi
+Password : raspberry
+Hostname : raspberrypi
+
+####################
+# Commandes utiles #
+####################
+
+Configurer le Raspberry Pi : $ sudo raspi-config
+Changer le mot de passe de l'utilisateur actuel : $ passwd
+
+#############################
+##           -1-           ##
+##      Mise à jour du     ##
+##       Raspberry Pi      ##
+#############################
+
+$ sudo apt-get update
+$ sudo apt-get upgrade
+
+##############################
+##            -2-           ##
+##      Installation du     ##
+##    Serveur Web Apache    ##
+##############################
+
+$ sudo apt-get install apache2
+
+    #Remarque : Le fichier /etc/apache2/conf.d/servername.conf n'existe pas
+
+$ sudo nano /etc/apache2/conf.d/servername.conf
+
+    #Modification à faire :
+
+    ServerName  raspberrypi
+ 
+$ sudo service apache2 restart
+
+########
+# Test #
+########
+
+    #Ouvrez le navigateur et mettez l'adresse IP du server web comme URL
+    #Pour connaitre son adresse : $ ifconfig
+    #Le serveur web est sensé interpréter le fichier index.html situé dans /var/www
+    #Message affiché :
+    #It works!
+    #This is the default web page for this server.
+    #The web server software is running but no content has been added, yet.
+
+##############################
+##            -3-           ##
+##      Installation du     ##
+##       HotSpot WiFi       ##
+##############################
+Remarque : Ne fonctionne pas avec toutes les clefs WiFi
+
+$ sudo apt-get install hostapd udhcpd   
+$ sudo cp /etc/udhcpd.conf /etc/udhcpd.conf.save 
+$ sudo nano /etc/udhcpd.conf
+
+    #Modification à faire :
+    
+    start 192.168.42.2 # This is the range of IPs that the hostspot will give to client devices.
+end 192.168.42.20
+    interface wlan0 # The device uDHCP listens on.
+    remaining yes
+    opt dns 8.8.8.8 4.2.2.2 # The DNS servers client devices will use.
+    opt subnet 255.255.255.0
+    opt router 192.168.42.1 # The Pi's IP address on wlan0 which we will set up shortly.
+    opt lease 864000 # 10 day DHCP lease time in seconds
+       
+$ sudo cp /etc/default/udhcpd /etc/default/udhcpd.save
+$ sudo nano /etc/default/udhcpd
+
+    #Modification à faire :
+    
+    #DHCPD_ENABLED="no"
+
+$ sudo ifconfig wlan0 192.168.42.1
+$ sudo cp /etc/network/interfaces /etc/network/interfaces.save
+$ sudo nano /etc/network/interfaces
+
+    #Modification à faire :
+    
+    iface wlan0 inet static
+        address 192.168.42.1
+        netmask 255.255.255.0
+    #allow-hotplug wlan0
+    #wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
+    #iface default inet dhcp
+    
+    #Remarque : Le fichier /etc/hostapd/hostapd.conf n'existe pas
+  
+$ sudo nano /etc/hostapd/hostapd.conf
+
+    #Modification à faire :
+    
+    interface=wlan0
+    driver=nl80211
+    ssid=Identifiant_Wifi_que_vous_voulez
+    hw_mode=g
+    channel=6
+    macaddr_acl=0
+    auth_algs=1
+    ignore_broadcast_ssid=0
+    wpa=2
+    wpa_passphrase=Mot_de_passe_Wifi_que_vous_voulez_de_8_caractères_minimum
+    wpa_key_mgmt=WPA-PSK
+    wpa_pairwise=TKIP
+    rsn_pairwise=CCMP
+    
+$ sudo cp /etc/default/hostapd /etc/default/hostapd.save
+$ sudo nano /etc/default/hostapd
+
+    #Modification à faire :
+    
+    DAEMON_CONF="/etc/hostapd/hostapd.conf"
+    
+$ sudo service hostapd start
+$ sudo service udhcpd start
+
+$ sudo update-rc.d hostapd enable
+$ sudo update-rc.d udhcpd enable
+
+########
+# Test #
+########
+
+    #Vous pouvez maintenant débrancher la prise RJ45 du Raspberry Pi
+    #Connectez vous en WiFi au Raspberry Pi
+    #Il vous attribuera automatiquement une adresse IP
+    #Ouvrez le navigateur et mettez l'adresse IP du server web comme URL
+    #Pour connaitre son adresse : $ ifconfig
+    #Le serveur web est sensé interpréter le fichier index.html situé dans /var/www
+    #Message affiché :
+    #It works!
+    #This is the default web page for this server.
+    #The web server software is running but no content has been added, yet.
+
+#############################
+##           -4-           ##
+##     Installation du     ##
+##    Module CGI Python    ##
+#############################
+
+$ sudo apt-get install libapache2-mod-python
+$ sudo cp /etc/apache2/sites-available/default /etc/apache2/sites-available/default.save
+$ sudo nano /etc/apache2/sites-available/default
+    
+    #Modification à faire :
+    
+    <Directory /var/www/>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride None
+        Order allow,deny
+        allow from all
+        AddHandler mod_python .py
+        PythonHandler mod_python.publisher
+        PythonDebug On
+    </Directory>
+    
+$ sudo /etc/init.d/apache2 restart
+
+########
+# Test #
+########
+
+$ sudo nano /var/www/test.py
+
+    #Modification à faire :
+    
+    def index(req):
+        return "Test successful";
+        
+    #Ouvrir le navigateur :
+    
+    adresse_ip_du_serveur_web/test.py
