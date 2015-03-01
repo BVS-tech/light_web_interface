@@ -1,17 +1,49 @@
-table.db-table {
-border-right:1px solid #ccc;
-border-bottom:1px solid #ccc;
+#table-bvs {
+	background-color: #f5f5f5;
+	padding: 5px;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border: 1px solid #ebebeb;
 }
-
-table.db-table th {
-background:#eee;
-padding:5px;
-border-left:1px solid #ccc;
-border-top:1px solid #ccc;
+#table-bvs td, #table-bvs th {
+	padding: 1px 5px;
 }
-
-table.db-table td {
-padding:5px;
-border-left:1px solid #ccc;
-border-top:1px solid #ccc;
+#table-bvs thead {
+	font: normal 15px Helvetica Neue,Helvetica,sans-serif;
+	text-shadow: 0 1px 0 white;
+	color: #707070;
+}
+#table-bvs th {
+	text-align: left;
+	border-bottom: 1px solid #fff;
+}
+#table-bvs td {
+	font-size: 12px;
+	font-family: Helvetica Neue,Helvetica,Arial,sans-serif;
+	text-shadow: 0 1px 0 white;
+	color: #858585
+}
+#table-bvs td:hover {
+	background-color: #fff;
+}
+#table-bvs td.on {
+	color: #00b300;
+}
+#table-bvs td.off {
+	color: #ff1a1a;
+}
+h3 {
+    font-family: Helvetica Neue,Helvetica,Arial,sans-serif;
+    text-shadow: 0 1px 0 white;
+    color: #1a8dff;
+    text-decoration: underline;
+}
+button.on:hover
+{
+     background: #00b300;
+}
+button.off:hover
+{
+     background: #ff1a1a;
 }
